@@ -1,0 +1,45 @@
+# =========================================================
+# Pipeline configuration
+# Scope is deliberately narrowed to chr20 of GIAB HG002 so
+# the whole pipeline is runnable on a laptop, while still
+# being benchmarked against a real, published truth set.
+# =========================================================
+
+sample: "HG002"
+chromosome: "chr20"
+
+# Raw FASTQ inputs (paired-end). Populate after running
+# scripts/download_reference.sh and pulling HG002 chr20 reads.
+reads:
+  r1: "resources/reads/HG002_chr20_R1.fastq.gz"
+  r2: "resources/reads/HG002_chr20_R2.fastq.gz"
+
+# Reference genome (GRCh38, chr20 only, to keep index sizes small)
+reference:
+  fasta: "resources/reference/chr20.fa"
+  # Download source, see scripts/download_reference.sh:
+  # https://hgdownload.soe.ucsc.edu/goldenPath/hg38/chromosomes/chr20.fa.gz
+
+# GIAB truth set for benchmarking (HG002, GRCh38, chr20 high-confidence regions)
+# https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/
+truth:
+  vcf: "resources/truth/HG002_GRCh38_chr20_truth.vcf.gz"
+  bed: "resources/truth/HG002_GRCh38_chr20_confident_regions.bed"
+
+# Clinical gene panel used to filter final annotated variants.
+# Default = ACMG SF v3.2 secondary findings gene list (subset present on chr20).
+# Swap in a cancer panel here for a MedGenome-oncology framing.
+gene_panel: "resources/panels/acmg_sf_chr20_genes.bed"
+
+annotation:
+  vep_cache_dir: "resources/vep_cache"
+  species: "homo_sapiens"
+  assembly: "GRCh38"
+
+threads:
+  align: 4
+  call: 4
+  annotate: 2
+
+database:
+  path: "results/db/HG002_variants.sqlite"

@@ -1,0 +1,24 @@
+# Large data - not committed, downloaded via scripts/download_reference.sh
+resources/reads/*.fastq.gz
+resources/reference/*.fa
+resources/reference/*.fa.*
+resources/truth/*.vcf.gz*
+resources/truth/*.bed
+resources/vep_cache/
+
+# Pipeline outputs
+results/
+logs/
+.snakemake/
+
+# Keep directory structure without committing large files
+!resources/reads/.gitkeep
+!resources/reference/.gitkeep
+!resources/truth/.gitkeep
+!resources/panels/.gitkeep
+
+# OS / editor cruft
+.DS_Store
+__pycache__/
+*.pyc
+.vscode/

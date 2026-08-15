@@ -1,0 +1,7 @@
+name: happy-env
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - hap.py=0.3.14
