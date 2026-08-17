@@ -7,6 +7,7 @@ rule gatk_haplotypecaller:
     input:
         bam=f"results/align/{SAMPLE_ID}.sorted.dedup.bam",
         ref=REF,
+        seq_dict=REF.rsplit(".", 1)[0] + ".dict",
     output:
         vcf=f"results/variants/{SAMPLE_ID}.gatk.vcf.gz",
     threads: config["threads"]["call"]
@@ -41,6 +42,7 @@ rule deepvariant:
     shell:
         """
         docker run --rm \
+            --user $(id -u):$(id -g) \
             -v "$(pwd)":/workspace \
             google/deepvariant:1.6.0 \
             /opt/deepvariant/bin/run_deepvariant \

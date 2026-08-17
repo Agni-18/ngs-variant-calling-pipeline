@@ -17,6 +17,17 @@ rule bwa_index:
         "bwa index {input} &> {log}"
 
 
+rule create_sequence_dictionary:
+    input:
+        REF,
+    output:
+        REF.rsplit(".", 1)[0] + ".dict",
+    log:
+        "logs/create_sequence_dictionary.log",
+    shell:
+        "gatk CreateSequenceDictionary -R {input} &> {log}"
+
+
 rule bwa_mem:
     """Align trimmed reads to the reference, sorted BAM output."""
     input:

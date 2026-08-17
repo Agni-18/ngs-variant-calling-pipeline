@@ -29,9 +29,8 @@ rule happy_benchmark:
             -f {input.bed} \
             -r {input.ref} \
             -o {params.prefix} \
-            --engine=vcfeval \
+            --engine=xcmp \
             &> {log}
-        cp {params.prefix}.summary.csv {output.summary}
         """
 
 
