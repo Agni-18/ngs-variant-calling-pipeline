@@ -1,0 +1,13 @@
+# Large/reproducible data - not committed, downloaded via scripts/download_clinvar.sh
+resources/*.vcf.gz
+resources/*.vcf.gz.tbi
+resources/gnomad_af_cache.json
+
+# Pipeline outputs - reproducible via classify_variants.py / generate_report.py
+results/
+reports/*.html
+
+# Python cache
+__pycache__/
+*.pyc
+.pytest_cache/

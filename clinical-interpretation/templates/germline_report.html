@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Germline Variant Classification Report — {{ sample_id }}</title>
+<style>
+    body {
+        font-family: -apple-system, "Segoe UI", Arial, sans-serif;
+        color: #1a1a1a;
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 40px 24px;
+        line-height: 1.5;
+    }
+    header {
+        border-bottom: 3px solid #1a3c5e;
+        padding-bottom: 16px;
+        margin-bottom: 24px;
+    }
+    h1 { color: #1a3c5e; margin-bottom: 4px; font-size: 24px; }
+    .subtitle { color: #666; font-size: 14px; }
+    .meta-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 24px;
+        font-size: 13px;
+    }
+    .meta-table td { padding: 4px 12px 4px 0; }
+    .meta-table td:first-child { color: #666; width: 160px; }
+    .summary-cards {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 28px;
+        flex-wrap: wrap;
+    }
+    .card {
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        padding: 12px 16px;
+        min-width: 130px;
+        text-align: center;
+    }
+    .card .count { font-size: 26px; font-weight: 700; }
+    .card .label { font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 0.03em; }
+    .card.pathogenic { border-color: #b91c1c; }
+    .card.pathogenic .count { color: #b91c1c; }
+    .card.likely-pathogenic { border-color: #d97706; }
+    .card.likely-pathogenic .count { color: #d97706; }
+    .card.vus { border-color: #6b7280; }
+    .card.vus .count { color: #6b7280; }
+    .card.likely-benign { border-color: #16a34a; }
+    .card.likely-benign .count { color: #16a34a; }
+    .card.benign { border-color: #15803d; }
+    .card.benign .count { color: #15803d; }
+
+    table.variants {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12.5px;
+        margin-bottom: 32px;
+    }
+    table.variants th {
+        background: #1a3c5e;
+        color: white;
+        text-align: left;
+        padding: 8px 10px;
+        font-weight: 600;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+    table.variants td {
+        padding: 7px 10px;
+        border-bottom: 1px solid #eee;
+        vertical-align: top;
+    }
+    table.variants tr:nth-child(even) { background: #fafafa; }
+    .classification-badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 3px;
+        font-size: 11px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+    .badge-pathogenic { background: #fee2e2; color: #b91c1c; }
+    .badge-likely-pathogenic { background: #fef3c7; color: #92400e; }
+    .badge-uncertain-significance { background: #f3f4f6; color: #4b5563; }
+    .badge-likely-benign { background: #dcfce7; color: #15803d; }
+    .badge-benign { background: #bbf7d0; color: #14532d; }
+    .evidence-codes { font-family: "SF Mono", Consolas, monospace; font-size: 11px; color: #555; }
+    .gene { font-weight: 600; }
+    .hgvs { font-family: "SF Mono", Consolas, monospace; font-size: 11.5px; }
+
+    section.methods {
+        font-size: 12.5px;
+        color: #444;
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        padding: 16px 20px;
+        margin-top: 24px;
+    }
+    section.methods h2 { font-size: 14px; color: #1a3c5e; margin-top: 0; }
+    section.methods p { margin: 8px 0; }
+    .limitations { margin-top: 12px; }
+    .limitations ul { margin: 4px 0; padding-left: 20px; }
+
+    footer {
+        margin-top: 32px;
+        padding-top: 12px;
+        border-top: 1px solid #ddd;
+        font-size: 11px;
+        color: #999;
+        text-align: center;
+    }
+</style>
+</head>
+<body>
+
+<header>
+    <h1>Germline Variant Classification Report</h1>
+    <div class="subtitle">ACMG/AMP 2015 combining-rules classification</div>
+</header>
+
+<table class="meta-table">
+    <tr><td>Sample ID</td><td>{{ sample_id }}</td></tr>
+    <tr><td>Reference genome</td><td>{{ reference_genome }}</td></tr>
+    <tr><td>Region analyzed</td><td>{{ region }}</td></tr>
+    <tr><td>Gene panel</td><td>{{ gene_panel }}</td></tr>
+    <tr><td>Report generated</td><td>{{ generated_date }}</td></tr>
+    <tr><td>Variant caller</td><td>{{ variant_caller }}</td></tr>
+</table>
+
+<div class="summary-cards">
+    <div class="card pathogenic">
+        <div class="count">{{ counts.get("Pathogenic", 0) }}</div>
+        <div class="label">Pathogenic</div>
+    </div>
+    <div class="card likely-pathogenic">
+        <div class="count">{{ counts.get("Likely Pathogenic", 0) }}</div>
+        <div class="label">Likely Pathogenic</div>
+    </div>
+    <div class="card vus">
+        <div class="count">{{ counts.get("Uncertain Significance", 0) }}</div>
+        <div class="label">VUS</div>
+    </div>
+    <div class="card likely-benign">
+        <div class="count">{{ counts.get("Likely Benign", 0) }}</div>
+        <div class="label">Likely Benign</div>
+    </div>
+    <div class="card benign">
+        <div class="count">{{ counts.get("Benign", 0) }}</div>
+        <div class="label">Benign</div>
+    </div>
+</div>
+
+<table class="variants">
+    <thead>
+        <tr>
+            <th>Gene</th>
+            <th>Position (GRCh38)</th>
+            <th>Ref &gt; Alt</th>
+            <th>Consequence</th>
+            <th>Classification</th>
+            <th>Evidence Codes</th>
+            <th>gnomAD AF</th>
+            <th>ClinVar</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for v in variants %}
+        <tr>
+            <td class="gene">{{ v.gene_symbol or "—" }}</td>
+            <td class="hgvs">{{ v.chrom }}:{{ v.pos }}</td>
+            <td class="hgvs">{{ v.ref }}&gt;{{ v.alt }}</td>
+            <td>{{ v.consequence or "—" }}</td>
+            <td>
+                <span class="classification-badge badge-{{ v.classification_slug }}">
+                    {{ v.classification }}
+                </span>
+            </td>
+            <td class="evidence-codes">{{ v.evidence_codes }}</td>
+            <td>{{ v.gnomad_af_display }}</td>
+            <td>{{ v.clinvar_clnsig or "—" }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<section class="methods">
+    <h2>Methods &amp; Limitations</h2>
+    <p>
+        Variants were classified using an implementation of the ACMG/AMP 2015
+        combining-rules framework (Richards et al., <em>Genet Med</em> 2015).
+        Evidence codes were derived automatically from three sources:
+        ClinVar (PP5/BP6), gnomAD population allele frequency (BA1/BS1/PM2),
+        and VEP consequence annotation gated by a curated gene-mechanism list
+        (PVS1, applied only to genes with an established loss-of-function
+        disease mechanism).
+    </p>
+    <div class="limitations">
+        <strong>This is a research and portfolio tool, not a validated
+        clinical assay.</strong> Known limitations:
+        <ul>
+            <li>Automated evidence extraction currently covers a subset of
+                ACMG/AMP criteria (PP5, BP6, BA1, BS1, PM2, PVS1). Criteria
+                requiring segregation data, functional studies, or de novo
+                confirmation (PS2, PS3, PP1, etc.) are not automated and
+                would need manual curation.</li>
+            <li>PM2 (rarity) reflects absence from gnomAD's public API at
+                the time of the query, not a formally reviewed population
+                frequency threshold specific to each gene/disease.</li>
+            <li>PVS1 is gated to a small, manually curated list of genes
+                with established loss-of-function mechanisms; genes not
+                on that list will not receive PVS1 evidence regardless of
+                consequence, by design.</li>
+            <li>ClinVar-derived evidence (PP5/BP6) reflects a third
+                party's classification, not independent evidence review.</li>
+        </ul>
+    </div>
+</section>
+
+<footer>
+    Generated by clinical-interpretation/reports/generate_report.py — see project README for methodology and source code.
+</footer>
+
+</body>
+</html>
